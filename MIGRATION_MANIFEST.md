@@ -25,6 +25,7 @@
 | `代码/02_已并入主流程/01_P3与径向追踪/run_step1_4_p3_image_boundary_correction_v2_5case.py` | `9bf7528e1e5a45714d7ce2baa13529e91b2c343d` | 原 P3 图像边界纠偏运行脚本 |
 | `代码/02_已并入主流程/01_P3与径向追踪/run_step1_4_p3_anatomical_position_qc_v1_5case.py` | `100143fed5cadba52dc8d3460cae101058abce3f` | 原 P3 anatomical position QC 脚本 |
 | `代码/02_已并入主流程/02_伪影质控与人工复核/run_step1_4_artifact_qc_v2_5case.py` | `330637ac4276b1d670d25b7d934b68113ad5f98a` | 原 artifact QC v2.1 运行脚本 |
+| `代码/03_实验与历史代码/run_final_sparse_anchor_wall_tracking.py` | `277b1a7e3675b3134605987ed37128525eccff0a` | 310 例批处理调用的五锚帧壁追踪入口 |
 | `代码/05_环境与校验/requirements.txt` | `24538552ea80f2fc0952e9878d6ebe06ceb03b6f` | 原运行依赖版本 |
 | `测试代码/01_底层算法测试/test_radial_pair_geometry.py` | `cf28871982b1ec19c85903a0616dc246788bb36a` | 径向几何/RSR基础测试 |
 | `测试代码/conftest.py` | `c7b9c6c39cab797eae6a46ad9c88fff8c2f33318` | pytest路径初始化 |
@@ -35,19 +36,13 @@
 
 该入口对应原 310 例新患者批处理中的“无既往人工确认记录”语义：自动候选保存为待人工复核，不能因为自动判定本身直接获得人工排除动作。
 
-## 当前尚未通过逐字核验的文件——合并硬门槛
+## 壁追踪入口核验结果
 
-`代码/03_实验与历史代码/run_final_sparse_anchor_wall_tracking.py` 来源于原仓库同名文件，但当前目标 blob SHA 为：
-
-`c03421d9f54b0fb20dd77092fe406b6a19008b43`
-
-固定来源提交中的 blob SHA 为：
+`代码/03_实验与历史代码/run_final_sparse_anchor_wall_tracking.py` 已恢复为来源提交中的逐字内容，当前目标 blob SHA 与 `end@a9cf11` 完全一致：
 
 `277b1a7e3675b3134605987ed37128525eccff0a`
 
-因此当前只能标记为 `SOURCE_DERIVED_PENDING_EXACT_VERIFICATION`，**不能标记为 EXACT_MIGRATION**。在该文件恢复为来源 blob 的逐字内容，或完成足以证明无算法行为差异的严格回归核验之前，本迁移分支不得作为“已完成迁移版本”合并到 `main`。
-
-这是当前最重要的未完成项，因为该文件负责五锚帧壁追踪、narrow section、宫底冗余、双向 LK/RSTC 融合及壁追踪有效性，是核心追踪路径而不是普通胶水。
+因此该核心入口现在可以标记为 `EXACT_MIGRATION`。它所包含的五锚帧壁追踪、narrow section、宫底冗余、双向 LK/RSTC 融合及壁追踪有效性规则没有在迁移过程中重写。
 
 ## 明确未迁移范围
 
@@ -64,8 +59,7 @@
 
 在将迁移分支合并到 `main` 前，至少完成：
 
-1. 五锚帧壁追踪入口完成逐字来源核验；
-2. `pytest` 跑通本仓库已迁移的底层测试；
-3. 使用同一去标识化病例、同一五锚帧 JSON/PNG、同一 MP4，分别运行原仓库和新仓库；
-4. 对 wall tracking NPZ、raw radial NPZ、corrected radial NPZ、P3 position QC NPZ、final artifact QC NPZ 做关键数组逐元素/容差比较；
-5. 任何差异必须能追溯到新编排路径，而不是核心算法、阈值、公式或 QC 语义变化。
+1. `pytest` 跑通本仓库已迁移的底层测试；
+2. 使用同一去标识化病例、同一五锚帧 JSON/PNG、同一 MP4，分别运行原仓库和新仓库；
+3. 对 wall tracking NPZ、raw radial NPZ、corrected radial NPZ、P3 position QC NPZ、final artifact QC NPZ 做关键数组逐元素/容差比较；
+4. 任何差异必须能追溯到新编排路径，而不是核心算法、阈值、公式或 QC 语义变化。
